@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16 # скачиваем образ постгрешки
+    environment: # переменные окружения для контейнера
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shop
+    ports: # пробрасываем порт
+      - '5432:5432'
+    volumes: # данные от бд тоесть при пересборке контейнера мы не теряем данные 
+      - pgdata:/var/lib/postgresql/data  
+
+  app:
+    build: 
+      context: . # берем образ с нашего докерфайла
+    ports:                              
+      - '8000:8000' # пробрасываем ему порт
+    environment:                          
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/shop # связываем приложение с бд где указывае логин и пароль от бд ну и не забываем про порт
+
+    depends_on:                         
+      - db # ждем пока первым запустится бд а потом только приложение
+    volumes:                            
+      - .:/app
+
+volumes:
+  pgdata:
